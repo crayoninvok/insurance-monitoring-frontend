@@ -5,7 +5,7 @@ import { LoginForm } from '../../components/auth/LoginForm';
 
 export default function LoginPage() {
   return (
-    <div className="grid min-h-screen bg-zinc-50 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] dark:bg-zinc-950">
+    <div className="grid min-h-dvh bg-zinc-50 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] dark:bg-zinc-950">
       <aside className="relative hidden min-h-screen flex-col justify-between overflow-hidden p-10 text-white lg:flex">
         <div className="absolute inset-0" aria-hidden>
           <Image
@@ -50,7 +50,7 @@ export default function LoginPage() {
         </p>
       </aside>
 
-      <main className="flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6">
+      <main className="flex min-h-dvh flex-col items-center justify-center px-4 py-6 sm:px-6 sm:py-10">
         <div className="mb-4 w-full max-w-md">
           <Link
             href="/"

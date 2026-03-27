@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.bataramining.com'),
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon',
-    apple: '/apple-icon',
+    icon: '/logobdp.png',
+    apple: '/logobdp.png',
   },
   appleWebApp: {
     capable: true,
@@ -38,6 +38,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: '#0f172a',
+  interactiveWidget: 'resizes-content',
 };
 
 export default function RootLayout({
