@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import PwaRegister from '@/components/PwaRegister';
 import './globals.css';
 
 const geistSans = Geist({
@@ -20,6 +21,23 @@ export const metadata: Metadata = {
   description: 'Monitoring budget insurance PT Batara Dharma Persada.',
   applicationName: 'Insurance BDP Monitoring App',
   metadataBase: new URL('https://www.bataramining.com'),
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Insurance BDP',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0f172a',
 };
 
 export default function RootLayout({
@@ -32,7 +50,10 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

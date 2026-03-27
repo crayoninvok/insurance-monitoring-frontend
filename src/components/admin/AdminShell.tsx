@@ -18,7 +18,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex" style={{ minHeight: '100dvh' }}>
       {/* Mobile header */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90 lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center gap-3 border-b border-zinc-200 bg-white/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90 lg:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
@@ -55,7 +55,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       />
 
       <div
-        className="flex min-w-0 flex-1 flex-col pt-14 lg:pt-0"
+        className="flex min-w-0 flex-1 flex-col pt-[calc(3.5rem+env(safe-area-inset-top))] lg:pt-0"
         style={{ minHeight: '100dvh' }}
       >
         <div className="relative flex-1 overflow-x-hidden">
