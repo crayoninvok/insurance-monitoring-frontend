@@ -116,6 +116,8 @@ function parseCsv(text: string) {
   });
 }
 
+type BulkCsvRow = ReturnType<typeof parseCsv>[number];
+
 export function CreateUserForm() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -132,7 +134,7 @@ export function CreateUserForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [bulkFileName, setBulkFileName] = useState('');
-  const [bulkRows, setBulkRows] = useState<Array<Record<string, string> & { rowNumber: number }>>([]);
+  const [bulkRows, setBulkRows] = useState<BulkCsvRow[]>([]);
   const [bulkRunning, setBulkRunning] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkResult, setBulkResult] = useState<string | null>(null);
