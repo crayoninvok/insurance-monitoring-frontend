@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '../../services/auth.services';
+import { AlertDialog } from '../ui/AlertDialog';
 
 type UserSidebarProps = {
   className?: string;
@@ -50,6 +52,8 @@ export default function UserSidebar({
   onClose,
 }: UserSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   return (
     <aside
@@ -137,10 +141,7 @@ export default function UserSidebar({
 
             <button
               type="button"
-              onClick={() => {
-                logout();
-                window.location.href = '/login';
-              }}
+              onClick={() => setShowLogoutDialog(true)}
               className="mt-3 w-full rounded-2xl bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
             >
               Logout
@@ -148,6 +149,19 @@ export default function UserSidebar({
           </div>
         </div>
       </div>
+      <AlertDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        title="Logout dari akun?"
+        description="Sesi Anda akan diakhiri. Anda bisa login lagi kapan saja."
+        cancelLabel="Batal"
+        actionLabel="Ya, logout"
+        actionVariant="danger"
+        onAction={() => {
+          logout();
+          router.replace('/login');
+        }}
+      />
     </aside>
   );
 }

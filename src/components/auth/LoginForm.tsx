@@ -17,7 +17,11 @@ export function LoginForm({ redirectTo = '/' }: { redirectTo?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{
+    title: string;
+    message: string;
+    variant: 'error' | 'success';
+  } | null>(null);
 
   function getRoleFromToken(token: string): 'ADMIN' | 'USER' | null {
     try {
@@ -41,26 +45,48 @@ export function LoginForm({ redirectTo = '/' }: { redirectTo?: string }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setFeedback(null);
     setSubmitting(true);
     try {
       const res = await login({ email: form.email.trim(), password: form.password });
       if (!res.success) {
-        setError(res.message);
+        setFeedback({
+          title: 'Login gagal',
+          message: res.message,
+          variant: 'error',
+        });
         return;
       }
 
       const role = getRoleFromToken(res.token);
       const target = role === 'ADMIN' ? '/admin/budget' : role === 'USER' ? '/budget' : redirectTo;
+      setFeedback({
+        title: 'Login berhasil',
+        message: 'Anda akan diarahkan ke dashboard.',
+        variant: 'success',
+      });
+      await new Promise((resolve) => window.setTimeout(resolve, 900));
       router.replace(target);
       router.refresh();
     } catch (e) {
       if (e instanceof ApiError) {
-        setError(e.message);
+        setFeedback({
+          title: 'Login gagal',
+          message: e.message,
+          variant: 'error',
+        });
       } else if (e instanceof Error) {
-        setError(e.message);
+        setFeedback({
+          title: 'Login gagal',
+          message: e.message,
+          variant: 'error',
+        });
       } else {
-        setError('Terjadi kesalahan yang tidak diketahui');
+        setFeedback({
+          title: 'Login gagal',
+          message: 'Terjadi kesalahan yang tidak diketahui',
+          variant: 'error',
+        });
       }
     } finally {
       setSubmitting(false);
@@ -69,14 +95,16 @@ export function LoginForm({ redirectTo = '/' }: { redirectTo?: string }) {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      {error ? <Alert title="Login gagal" message={error} /> : null}
+      {feedback ? (
+        <Alert title={feedback.title} message={feedback.message} variant={feedback.variant} />
+      ) : null}
 
       <TextField
         label="Email"
         name="email"
         type="email"
         autoComplete="email"
-        placeholder="admin@local.test"
+        placeholder="nama@email.com"
         value={form.email}
         onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
         disabled={submitting}

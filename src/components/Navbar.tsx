@@ -17,10 +17,10 @@ export default function Navbar() {
           </div>
           <div className="min-w-0 flex flex-col leading-tight">
             <span className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              Monitoring Budget
+              Insurance BDP Monitoring App
             </span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Insurance
+            <span className="text-xs italic text-zinc-500 dark:text-zinc-400">
+              property of www.bataramining.com
             </span>
           </div>
         </Link>
