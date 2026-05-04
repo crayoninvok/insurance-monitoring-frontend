@@ -3,8 +3,21 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import AdminSidebar from './AdminSidebar';
 
+const SIDEBAR_COLLAPSED_KEY = 'monitoring-budget-admin-sidebar-collapsed';
+
 export function AdminShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1') {
+        setSidebarCollapsed(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -14,6 +27,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
       document.body.style.overflow = prev;
     };
   }, [mobileOpen]);
+
+  function toggleSidebarCollapsed() {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0');
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
 
   return (
     <div className="flex" style={{ minHeight: '100dvh' }}>
@@ -45,8 +70,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
       ) : null}
 
       <AdminSidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={toggleSidebarCollapsed}
         className={[
-          'fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] max-w-[88vw] transition-transform duration-200 ease-out lg:static lg:z-0 lg:max-w-none lg:w-[280px] lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 w-[min(280px,88vw)] max-w-[88vw] transition-transform duration-200 ease-out lg:static lg:z-0 lg:max-w-none lg:translate-x-0 lg:overflow-hidden lg:transition-[width] lg:duration-200 lg:ease-out',
+          sidebarCollapsed ? 'lg:w-[76px] lg:min-w-[76px]' : 'lg:w-[280px] lg:min-w-[280px]',
           mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0',
         ].join(' ')}
         onNavigate={() => setMobileOpen(false)}

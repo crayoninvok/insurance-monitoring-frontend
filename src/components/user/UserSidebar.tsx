@@ -11,6 +11,8 @@ type UserSidebarProps = {
   onNavigate?: () => void;
   showCloseButton?: boolean;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 };
 
 function NavItem({
@@ -19,29 +21,50 @@ function NavItem({
   active,
   icon,
   onNavigate,
+  collapsed,
 }: {
   href: string;
   label: string;
   active?: boolean;
   icon: React.ReactNode;
   onNavigate?: () => void;
+  collapsed?: boolean;
 }) {
   return (
     <Link
       href={href}
       onClick={onNavigate}
+      title={collapsed ? label : undefined}
       className={[
-        'flex items-center gap-3 rounded-2xl px-3 py-2 text-sm font-semibold transition',
+        'flex items-center rounded-2xl py-2 text-sm font-semibold transition',
+        collapsed
+          ? 'gap-3 px-3 max-lg:justify-start lg:justify-center lg:gap-0 lg:px-2'
+          : 'gap-3 px-3',
         active
           ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
           : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900/50',
       ].join(' ')}
     >
-      <span className={active ? 'text-white' : 'text-zinc-600 dark:text-zinc-300'}>
+      <span className={`shrink-0 ${active ? 'text-white' : 'text-zinc-600 dark:text-zinc-300'}`}>
         {icon}
       </span>
-      {label}
+      <span className={collapsed ? 'truncate lg:sr-only' : 'truncate'}>{label}</span>
     </Link>
+  );
+}
+
+function IconChevronSidebar({ direction }: { direction: 'in' | 'out' }) {
+  const isIn = direction === 'in';
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d={isIn ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'}
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -50,6 +73,8 @@ export default function UserSidebar({
   onNavigate,
   showCloseButton,
   onClose,
+  collapsed = false,
+  onToggleCollapsed,
 }: UserSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -62,10 +87,25 @@ export default function UserSidebar({
         className ?? '',
       ].join(' ')}
     >
-      <div className="flex min-h-0 flex-1 flex-col gap-6 p-5">
-        <div className="flex shrink-0 items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <div className={`flex min-h-0 flex-1 flex-col gap-6 ${collapsed ? 'p-3 lg:p-2' : 'p-5'}`}>
+        <div
+          className={[
+            'flex shrink-0 items-center gap-3',
+            collapsed ? 'justify-between max-lg:justify-between lg:flex-col lg:justify-center' : 'justify-between',
+          ].join(' ')}
+        >
+          <div
+            className={[
+              'flex items-center gap-3',
+              collapsed ? 'max-lg:flex-row lg:flex-col lg:items-center lg:gap-2' : '',
+            ].join(' ')}
+          >
+            <div
+              className={[
+                'relative shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950',
+                collapsed ? 'h-10 w-10 lg:h-9 lg:w-9' : 'h-10 w-10',
+              ].join(' ')}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logobdp.png"
@@ -73,7 +113,13 @@ export default function UserSidebar({
                 className="h-full w-full object-contain p-1"
               />
             </div>
-            <div className="flex flex-col">
+            <div
+              className={
+                collapsed
+                  ? 'flex min-w-0 flex-col max-lg:flex lg:hidden'
+                  : 'flex min-w-0 flex-col'
+              }
+            >
               <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
                 User
               </span>
@@ -97,32 +143,10 @@ export default function UserSidebar({
 
         <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1">
           <NavItem
-            href="/budget"
-            label="My Budget"
-            active={pathname === '/budget'}
-            onNavigate={onNavigate}
-            icon={
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 1v22"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H7"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            }
-          />
-
-          <NavItem
             href="/profile"
             label="Profile"
             active={pathname === '/profile'}
+            collapsed={collapsed}
             onNavigate={onNavigate}
             icon={
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -133,18 +157,67 @@ export default function UserSidebar({
           />
         </nav>
 
-        <div className="mt-auto shrink-0 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-          <div className="rounded-3xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
-            <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+        <div className="mt-auto shrink-0 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          {onToggleCollapsed ? (
+            <div className="mb-3 hidden justify-center lg:flex">
+              <button
+                type="button"
+                onClick={onToggleCollapsed}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                aria-expanded={!collapsed}
+                aria-label={collapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
+                title={collapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
+              >
+                <IconChevronSidebar direction={collapsed ? 'out' : 'in'} />
+              </button>
+            </div>
+          ) : null}
+
+          <div
+            className={[
+              'rounded-3xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/40',
+              collapsed ? 'p-2 lg:p-2' : 'p-4',
+            ].join(' ')}
+          >
+            <div
+              className={
+                collapsed
+                  ? 'hidden max-lg:block text-xs font-semibold text-zinc-500 dark:text-zinc-400'
+                  : 'text-xs font-semibold text-zinc-500 dark:text-zinc-400'
+              }
+            >
               Quick actions
             </div>
 
             <button
               type="button"
               onClick={() => setShowLogoutDialog(true)}
-              className="mt-3 w-full rounded-2xl bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+              title="Logout"
+              className={[
+                'w-full rounded-2xl bg-zinc-900 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200',
+                collapsed
+                  ? 'mt-3 flex items-center justify-center px-3 py-2 max-lg:mt-3 lg:mt-0 lg:px-2 lg:py-2.5'
+                  : 'mt-3 px-3 py-2',
+              ].join(' ')}
             >
-              Logout
+              {collapsed ? (
+                <span className="hidden max-lg:inline">Logout</span>
+              ) : (
+                'Logout'
+              )}
+              {collapsed ? (
+                <span className="hidden lg:inline-flex" aria-hidden>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              ) : null}
             </button>
           </div>
         </div>

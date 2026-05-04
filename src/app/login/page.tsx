@@ -76,7 +76,7 @@ export default function LoginPage() {
           title="Masuk"
           subtitle="Gunakan email dan password yang diberikan administrator."
         >
-          <LoginForm redirectTo="/budget" />
+          <LoginForm redirectTo="/profile" />
         </AuthCard>
       </main>
     </div>

@@ -61,10 +61,10 @@ export default function Home() {
                   Login
                 </Link>
                 <Link
-                  href="/budget"
+                  href="/profile"
                   className="inline-flex h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-5 text-sm font-semibold text-white hover:bg-white/20"
                 >
-                  Lihat Budget
+                  Lihat Profil
                 </Link>
               </div>
             </div>
