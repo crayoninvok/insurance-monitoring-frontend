@@ -163,33 +163,43 @@ export function AdminUsersManager() {
         <table className="min-w-[1080px] w-full table-fixed text-sm">
           <thead>
             <tr className="border-b border-zinc-200 text-xs font-semibold text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-              <th className="px-3 py-2 text-left">Nama</th>
-              <th className="px-3 py-2 text-left">Kontak</th>
-              <th className="px-3 py-2 text-left">Departemen</th>
-              <th className="px-3 py-2 text-left">Branch</th>
-              <th className="px-3 py-2 text-left">Position</th>
-              <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2 text-center">Actions</th>
+              <th className="w-[18%] px-3 py-2 text-left">Nama</th>
+              <th className="w-[24%] px-3 py-2 text-left">Kontak</th>
+              <th className="w-[12%] px-3 py-2 text-left">Departemen</th>
+              <th className="w-[10%] px-3 py-2 text-left">Branch</th>
+              <th className="w-[12%] px-3 py-2 text-left">Position</th>
+              <th className="w-[8%] px-3 py-2 text-left">Status</th>
+              <th className="w-[16%] px-3 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-zinc-100 dark:border-zinc-900">
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 align-top">
                   <div className="font-semibold text-zinc-900 dark:text-zinc-100">
                     {r.firstName} {r.lastName}
                   </div>
                   <div className="text-xs text-zinc-500">{r.role}</div>
                 </td>
-                <td className="px-3 py-2">
-                  <div>{r.email}</div>
-                  <div className="text-xs text-zinc-500">{r.phone}</div>
+                <td className="max-w-0 overflow-hidden px-3 py-2 align-top">
+                  <div
+                    className="break-all leading-snug text-zinc-900 dark:text-zinc-100"
+                    title={r.email}
+                  >
+                    {r.email}
+                  </div>
+                  <div
+                    className="mt-0.5 break-all text-xs leading-snug text-zinc-500"
+                    title={r.phone}
+                  >
+                    {r.phone}
+                  </div>
                 </td>
-                <td className="px-3 py-2">{r.department}</td>
-                <td className="px-3 py-2">{formatBranchLabel(r.branch)}</td>
-                <td className="px-3 py-2">{formatPositionLabel(r.position)}</td>
-                <td className="px-3 py-2">{r.status}</td>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 align-top">{r.department}</td>
+                <td className="px-3 py-2 align-top">{formatBranchLabel(r.branch)}</td>
+                <td className="px-3 py-2 align-top">{formatPositionLabel(r.position)}</td>
+                <td className="px-3 py-2 align-top">{r.status}</td>
+                <td className="px-3 py-2 align-top">
                   <div className="flex items-center justify-center gap-2">
                     <Button variant="secondary" className="h-8 px-3 text-xs" onClick={() => setEditUser(r)}>
                       Edit

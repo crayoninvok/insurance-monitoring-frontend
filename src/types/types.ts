@@ -313,6 +313,19 @@ export type ListAdminUserLedgerResponse = ApiResponse<{
   data: AdminUserLedgerEntry[];
 }>;
 
+export type AdminUpdateLedgerEntryRequest = {
+  amount?: number | string;
+  note?: string | null;
+  documentUrl?: string | null;
+  documentPublicId?: string | null;
+  documentOriginalName?: string | null;
+  rawatJalanMedicalId?: string | null;
+};
+
+export type AdminUpdateLedgerEntryResponse = ApiResponse<{
+  data: AdminUserLedgerEntry;
+}>;
+
 export type UpsertRawatJalanPolicyRequest = {
   year?: number;
   position: Position;

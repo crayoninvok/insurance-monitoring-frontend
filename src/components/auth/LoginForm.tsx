@@ -81,7 +81,7 @@ export function LoginForm({ redirectTo = '/' }: { redirectTo?: string }) {
       }
 
       const role = getRoleFromToken(res.token);
-      const target = role === 'ADMIN' ? '/admin/budget' : role === 'USER' ? '/profile' : redirectTo;
+      const target = role === 'ADMIN' ? '/admin' : role === 'USER' ? '/budget' : redirectTo;
       setFeedback({
         title: 'Login berhasil',
         message: 'Anda akan diarahkan ke dashboard.',

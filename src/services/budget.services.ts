@@ -11,6 +11,8 @@ import type {
   CreateRawatInapEpisodeResponse,
   CreateRawatJalanMedicalRequest,
   CreateRawatJalanMedicalResponse,
+  AdminUpdateLedgerEntryRequest,
+  AdminUpdateLedgerEntryResponse,
   ListAdminUserLedgerResponse,
   ListAdminUserBudgetsResponse,
   GetMyBudgetResponse,
@@ -99,6 +101,13 @@ export async function getMyBudget(year?: number) {
   });
 }
 
+export async function getMyLedger(year?: number) {
+  const qs = year ? `?year=${encodeURIComponent(String(year))}` : '';
+  return await apiFetch<ListAdminUserLedgerResponse>(`/budget/me/ledger${qs}`, {
+    method: 'GET',
+  });
+}
+
 export async function listRawatJalanMedicals(activeOnly = true) {
   const qs = `?active=${encodeURIComponent(activeOnly ? 'true' : 'false')}`;
   return await apiFetch<ListRawatJalanMedicalsResponse>(`/budget/lookups/rawat-jalan-medicals${qs}`, {
@@ -176,6 +185,28 @@ export async function listAdminUserLedger(userId: string, year?: number) {
   return await apiFetch<ListAdminUserLedgerResponse>(`/budget/admin/ledger?${params.toString()}`, {
     method: 'GET',
   });
+}
+
+export async function adminUpdateLedgerEntry(
+  ledgerId: string,
+  input: AdminUpdateLedgerEntryRequest,
+) {
+  return await apiFetch<AdminUpdateLedgerEntryResponse>(
+    `/budget/admin/ledger/${encodeURIComponent(ledgerId)}`,
+    {
+      method: 'PATCH',
+      body: input as any,
+    },
+  );
+}
+
+export async function adminDeleteLedgerEntry(ledgerId: string) {
+  return await apiFetch<{ success: boolean; message: string }>(
+    `/budget/admin/ledger/${encodeURIComponent(ledgerId)}`,
+    {
+      method: 'DELETE',
+    },
+  );
 }
 
 export async function adminSpendForUser(input: AdminSpendForUserRequest) {

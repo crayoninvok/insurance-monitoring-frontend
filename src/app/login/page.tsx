@@ -1,27 +1,54 @@
+'use client';
+
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AuthCard } from '../../components/auth/AuthCard';
 import { LoginForm } from '../../components/auth/LoginForm';
 
 export default function LoginPage() {
+  const [videoEnded, setVideoEnded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
   return (
     <div className="grid min-h-dvh bg-zinc-50 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] dark:bg-zinc-950">
       <aside className="relative hidden min-h-screen flex-col justify-between overflow-hidden p-10 text-white lg:flex">
-        <div className="absolute inset-0" aria-hidden>
+        {/* Background Container: Video plays first, then fades to login-banner.jpg on end */}
+        <div className="absolute inset-0 h-full w-full overflow-hidden" aria-hidden>
+          {/* Fallback & target image */}
           <Image
             src="/login-banner.jpg"
             alt=""
             fill
-            className="object-cover object-center"
+            className={`h-full w-full object-cover object-center transition-opacity duration-1000 ${
+              videoEnded ? 'opacity-100' : 'opacity-0'
+            }`}
             priority
-            sizes="(min-width: 1024px) 55vw, 0"
+            sizes="(min-width: 1024px) 55vw, 100vw"
+          />
+
+          {/* Intro Video */}
+          <video
+            ref={videoRef}
+            src="/loginvid1.mp4"
+            autoPlay
+            muted
+            playsInline
+            onEnded={() => setVideoEnded(true)}
+            onError={() => setVideoEnded(true)}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ${
+              videoEnded ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
           />
         </div>
-        {/* Overlay: darker at top & bottom for logo + footer; mid tone keeps headline readable */}
+
+        {/* Overlay gradient for text contrast */}
         <div
           className="pointer-events-none absolute inset-0 bg-linear-to-b from-slate-950/80 via-slate-950/45 to-slate-950/88"
           aria-hidden
         />
+
+        {/* Brand & Headline */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-1.5 shadow-lg shadow-black/30 backdrop-blur-sm">
@@ -76,7 +103,7 @@ export default function LoginPage() {
           title="Masuk"
           subtitle="Gunakan email dan password yang diberikan administrator."
         >
-          <LoginForm redirectTo="/profile" />
+          <LoginForm redirectTo="/budget" />
         </AuthCard>
       </main>
     </div>

@@ -143,6 +143,19 @@ export default function UserSidebar({
 
         <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1">
           <NavItem
+            href="/budget"
+            label="My Budget"
+            active={pathname === '/budget'}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+            icon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="2" />
+                <path d="M12 11h.01M16 11h.01M8 11h.01M12 15h.01M16 15h.01M8 15h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            }
+          />
+          <NavItem
             href="/profile"
             label="Profile"
             active={pathname === '/profile'}

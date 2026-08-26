@@ -1,4 +1,3 @@
-import { AdminBudgetSummary } from '../../../components/admin/AdminBudgetSummary';
 import { BudgetPolicyEditor } from '../../../components/admin/BudgetPolicyEditor';
 
 export default function AdminBudgetPage() {
@@ -28,15 +27,10 @@ export default function AdminBudgetPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <AdminBudgetSummary />
-
-        <div className="rounded-3xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/60">
-          <div className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Budget Setting</div>
-          <BudgetPolicyEditor />
-        </div>
+      <div className="rounded-3xl border border-zinc-200 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/60">
+        <div className="mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Budget Setting</div>
+        <BudgetPolicyEditor />
       </div>
     </div>
   );
 }
-

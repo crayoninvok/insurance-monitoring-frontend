@@ -21,6 +21,7 @@ import type {
 } from '../../types/types';
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
+import { Skeleton } from '../ui/Skeleton';
 import { TextField } from '../ui/TextField';
 import { formatBranchLabel } from '../../constants/branchLabels';
 import { formatPositionLabel } from '../../constants/positionLabels';
@@ -524,7 +525,7 @@ export function AdminUserBudgetsTable() {
       </div>
 
       <div className="hidden overflow-x-auto rounded-3xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:block">
-        <div className="grid min-w-[1520px] grid-cols-[300px_210px_190px_180px_220px_220px_220px_260px] items-center gap-0 border-b border-zinc-200 bg-zinc-50 px-5 py-2.5 text-sm font-semibold text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+        <div className="grid min-w-380 grid-cols-[300px_210px_190px_180px_220px_220px_220px_260px] items-center gap-0 border-b border-zinc-200 bg-zinc-50 px-5 py-2.5 text-sm font-semibold text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
           <div className="whitespace-nowrap">User</div>
           <div className="flex justify-start whitespace-nowrap">Departemen</div>
           <div className="whitespace-nowrap">Position</div>
@@ -536,7 +537,13 @@ export function AdminUserBudgetsTable() {
         </div>
 
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {pagedRows.length === 0 && !loading ? (
+          {loading && rows.length === 0 ? (
+            <div className="space-y-3 p-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : pagedRows.length === 0 ? (
             <div className="p-6 text-sm text-zinc-600 dark:text-zinc-400">
               Tidak ada data yang cocok untuk filter saat ini.
             </div>
@@ -545,7 +552,7 @@ export function AdminUserBudgetsTable() {
           {pagedRows.map((r) => (
             <div
               key={r.userId}
-            className="grid min-w-[1520px] grid-cols-[300px_210px_190px_180px_220px_220px_220px_260px] items-center gap-0 px-5 py-2.5"
+            className="grid min-w-380 grid-cols-[300px_210px_190px_180px_220px_220px_220px_260px] items-center gap-0 px-5 py-2.5"
             >
               <div className="min-w-0 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 <div className="truncate">
@@ -587,7 +594,7 @@ export function AdminUserBudgetsTable() {
                   variant="secondary"
                   onClick={() => setResetTargetUserId(r.userId)}
                   disabled={loading}
-                  className="h-8 min-w-[82px] px-2.5 py-1 text-xs"
+                  className="h-8 min-w-20.5 px-2.5 py-1 text-xs"
                 >
                   Reset Txn
                 </Button>
@@ -595,7 +602,7 @@ export function AdminUserBudgetsTable() {
                   type="button"
                   onClick={() => openSpendModal(r.userId)}
                   disabled={loading}
-                  className="h-8 min-w-[82px] px-2.5 py-1 text-xs"
+                  className="h-8 min-w-20.5 px-2.5 py-1 text-xs"
                 >
                   Add Spend
                 </Button>
@@ -1001,7 +1008,7 @@ export function AdminUserBudgetsTable() {
                       setSpendDocumentMeta(null);
                     }}
                     disabled={loading || spendDocumentUploading}
-                    className="h-11 min-w-[120px]"
+                    className="h-11 min-w-30"
                   >
                     Cancel
                   </Button>
@@ -1009,7 +1016,7 @@ export function AdminUserBudgetsTable() {
                     type="button"
                     onClick={() => void confirmSpend()}
                     disabled={loading || spendDocumentUploading}
-                    className="h-11 min-w-[120px]"
+                    className="h-11 min-w-30"
                   >
                     {loading || spendDocumentUploading ? 'Simpan...' : 'Simpan'}
                   </Button>

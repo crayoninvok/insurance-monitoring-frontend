@@ -142,6 +142,22 @@ export default function AdminSidebar({
 
         <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden pr-1">
           <NavItem
+            href="/admin"
+            label="Dashboard"
+            active={pathname === '/admin'}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+            icon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"
+                  fill="currentColor"
+                />
+              </svg>
+            }
+          />
+
+          <NavItem
             href="/admin/budget"
             label="Budget Policies"
             active={pathname === '/admin/budget'}

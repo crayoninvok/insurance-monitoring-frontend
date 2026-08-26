@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Toaster, toast } from "sonner";
 import {
+  adminDeleteLedgerEntry,
   listAdminUserBudgets,
   listAdminUserLedger,
 } from "../../services/budget.services";
@@ -12,8 +14,11 @@ import type {
   AdminUserBudgetRow,
   AdminUserLedgerEntry,
 } from "../../types/types";
+import { AdminLedgerEntryEditModal } from "./AdminLedgerEntryEditModal";
 import { Alert } from "../ui/Alert";
+import { AlertDialog } from "../ui/AlertDialog";
 import { DocumentPreviewModal } from "../ui/DocumentPreviewModal";
+import { Skeleton } from "../ui/Skeleton";
 import { TextField } from "../ui/TextField";
 import { formatBranchLabel } from "../../constants/branchLabels";
 import { formatPositionLabel } from "../../constants/positionLabels";
@@ -167,6 +172,44 @@ export function AdminLedgerBrowser() {
     url: string;
     fileLabel: string | null;
   } | null>(null);
+  const [editEntryContext, setEditEntryContext] = useState<{
+    userId: string;
+    entry: AdminUserLedgerEntry;
+  } | null>(null);
+  const [deleteTargetContext, setDeleteTargetContext] = useState<{
+    userId: string;
+    entry: AdminUserLedgerEntry;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDeleteLedgerEntry() {
+    if (!deleteTargetContext) return;
+    const { userId, entry } = deleteTargetContext;
+    setDeleting(true);
+    try {
+      const res = await adminDeleteLedgerEntry(entry.id);
+      if (!res.success) {
+        toast.error(res.message || "Gagal menghapus transaksi");
+        return;
+      }
+      toast.success("Transaksi berhasil dihapus. Budget telah dikembalikan.");
+      setDeleteTargetContext(null);
+
+      // Invalidate cache and refetch ledger for this user + refresh user balances
+      setLedgerCache((prev) => ({
+        ...prev,
+        [userId]: undefined,
+      }));
+      await loadUsers();
+      await openLedger(userId);
+    } catch (e) {
+      const message =
+        e instanceof Error ? e.message : "Gagal menghapus transaksi";
+      toast.error(message);
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   const positionOptions = useMemo(
     () => Array.from(new Set(rows.map((r) => r.position))).sort(),
@@ -473,6 +516,18 @@ export function AdminLedgerBrowser() {
     doc.save(`ledger-spend-${fullName || user.userId}-${year}.pdf`);
   }
 
+  function onLedgerEntrySaved(userId: string, updated: AdminUserLedgerEntry) {
+    setLedgerCache((prev) => {
+      const list = prev[userId];
+      if (!list) return prev;
+      return {
+        ...prev,
+        [userId]: list.map((item) => (item.id === updated.id ? updated : item)),
+      };
+    });
+    void loadUsers();
+  }
+
   async function getLedgerEntriesForUser(userId: string) {
     const cached = ledgerCache[userId];
     if (cached) return cached;
@@ -694,7 +749,13 @@ export function AdminLedgerBrowser() {
 
       <div className="rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {pagedRows.length === 0 && !loading ? (
+          {loading && rows.length === 0 ? (
+            <div className="space-y-4 p-4">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : pagedRows.length === 0 ? (
             <div className="p-6 text-sm text-zinc-600 dark:text-zinc-400">
               Tidak ada data yang cocok untuk filter saat ini.
             </div>
@@ -794,8 +855,9 @@ export function AdminLedgerBrowser() {
                     ) : null}
 
                     {ledgerLoading && ledgerEntries === undefined ? (
-                      <div className="text-sm text-zinc-600 dark:text-zinc-300">
-                        Memuat ledger...
+                      <div className="space-y-2 py-2">
+                        <Skeleton className="h-9 w-full" />
+                        <Skeleton className="h-9 w-full" />
                       </div>
                     ) : null}
 
@@ -832,26 +894,29 @@ export function AdminLedgerBrowser() {
                             </button>
                           </div>
                           <div className="overflow-x-auto">
-                            <table className="min-w-[860px] w-full table-fixed text-sm">
+                            <table className="min-w-235 w-full table-fixed text-sm">
                               <thead>
                                 <tr className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-                                  <th className="w-[150px] px-2 py-2 text-left">
+                                  <th className="w-35 px-2 py-2 text-left">
                                     Tanggal
                                   </th>
-                                  <th className="w-[110px] px-2 py-2 text-left">
+                                  <th className="w-25 px-2 py-2 text-left">
                                     Jenis
                                   </th>
-                                  <th className="w-[140px] px-2 py-2 text-left">
+                                  <th className="w-30 px-2 py-2 text-left">
                                     Benefit
                                   </th>
-                                  <th className="w-[240px] px-2 py-2 text-left">
+                                  <th className="w-50 px-2 py-2 text-left">
                                     Detail
                                   </th>
-                                  <th className="w-[140px] px-2 py-2 text-right">
+                                  <th className="w-30 px-2 py-2 text-right">
                                     Amount
                                   </th>
-                                  <th className="px-2 py-2 text-left">
+                                  <th className="w-35 px-2 py-2 text-left">
                                     Documents
+                                  </th>
+                                  <th className="w-35 px-2 py-2 text-center">
+                                    Aksi
                                   </th>
                                 </tr>
                               </thead>
@@ -894,7 +959,7 @@ export function AdminLedgerBrowser() {
                                     <td className="px-2 py-2 text-right text-zinc-700 dark:text-zinc-200 tabular-nums">
                                       {formatRupiah(e.amount)}
                                     </td>
-                                    <td className="max-w-[260px] px-2 py-2 text-zinc-700 dark:text-zinc-200">
+                                    <td className="max-w-65 px-2 py-2 text-zinc-700 dark:text-zinc-200">
                                       {e.documentUrl ? (
                                         <button
                                           type="button"
@@ -914,6 +979,34 @@ export function AdminLedgerBrowser() {
                                           -
                                         </span>
                                       )}
+                                    </td>
+                                    <td className="px-2 py-2 text-center">
+                                      <div className="flex items-center justify-center gap-1.5">
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setEditEntryContext({
+                                              userId: r.userId,
+                                              entry: e,
+                                            })
+                                          }
+                                          className="rounded-lg border border-zinc-200 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-900/50"
+                                        >
+                                          Edit
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setDeleteTargetContext({
+                                              userId: r.userId,
+                                              entry: e,
+                                            })
+                                          }
+                                          className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950"
+                                        >
+                                          Hapus
+                                        </button>
+                                      </div>
                                     </td>
                                   </tr>
                                 ))}
@@ -1011,6 +1104,44 @@ export function AdminLedgerBrowser() {
         url={documentPreview?.url ?? null}
         fileLabel={documentPreview?.fileLabel ?? null}
       />
+
+      <AdminLedgerEntryEditModal
+        open={editEntryContext !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditEntryContext(null);
+        }}
+        entry={editEntryContext?.entry ?? null}
+        onSaved={(updated) => {
+          if (editEntryContext) {
+            onLedgerEntrySaved(editEntryContext.userId, updated);
+          }
+        }}
+      />
+
+      <AlertDialog
+        open={deleteTargetContext !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleting) setDeleteTargetContext(null);
+        }}
+        title="Hapus Transaksi Ledger?"
+        description={
+          deleteTargetContext
+            ? `Apakah Anda yakin ingin menghapus transaksi "${
+                deleteTargetContext.entry.benefitType ??
+                deleteTargetContext.entry.spendCategory ??
+                "SPEND"
+              }" sebesar ${formatRupiah(
+                deleteTargetContext.entry.amount,
+              )}? Saldo budget user akan dikembalikan secara otomatis.`
+            : undefined
+        }
+        cancelLabel="Batal"
+        actionLabel={deleting ? "Menghapus..." : "Ya, Hapus Transaksi"}
+        actionVariant="danger"
+        onAction={() => void handleDeleteLedgerEntry()}
+      />
+
+      <Toaster position="top-right" richColors />
     </div>
   );
 }
